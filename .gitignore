@@ -1,0 +1,5 @@
+/vendor/
+/coverage-html/
+/coverage-report/
+/coverage.txt
+.cache

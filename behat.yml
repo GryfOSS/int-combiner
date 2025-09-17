@@ -1,0 +1,11 @@
+default:
+  autoload:
+    '': '%paths.base%/features/bootstrap'
+  suites:
+    default:
+      contexts:
+        - IntCombinerContext
+      paths:
+        - '%paths.base%/features'
+  formatters:
+    pretty: ~

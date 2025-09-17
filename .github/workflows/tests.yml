@@ -1,0 +1,103 @@
+name: Tests and Coverage
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        php-version: [8.2, 8.3, 8.4]
+
+    name: PHP ${{ matrix.php-version }} Tests
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Setup PHP
+      uses: shivammathur/setup-php@v2
+      with:
+        php-version: ${{ matrix.php-version }}
+        extensions: dom, curl, libxml, mbstring, zip, pcntl, pdo, sqlite, pdo_sqlite, bcmath, soap, intl, gd, exif, iconv, xdebug
+        coverage: xdebug
+
+    - name: Cache Composer packages
+      id: composer-cache
+      uses: actions/cache@v3
+      with:
+        path: vendor
+        key: ${{ runner.os }}-php-${{ matrix.php-version }}-${{ hashFiles('**/composer.lock') }}
+        restore-keys: |
+          ${{ runner.os }}-php-${{ matrix.php-version }}-
+
+    - name: Install dependencies
+      run: composer install --prefer-dist --no-progress --no-suggest --no-interaction
+
+    - name: Run PHPUnit tests with coverage
+      run: |
+        XDEBUG_MODE=coverage ./vendor/bin/phpunit --coverage-text --coverage-clover=coverage.xml --colors=never
+
+    - name: Check code coverage requirement (100%)
+      run: |
+        chmod +x scripts/check-coverage.sh
+        ./scripts/check-coverage.sh
+
+    - name: Run Behat feature tests
+      run: ./vendor/bin/behat --colors
+
+    - name: Verify all tests passed
+      run: |
+        echo "✅ All PHPUnit tests passed"
+        echo "✅ All Behat scenarios passed"
+        echo "✅ Code coverage requirement (100%) met"
+        echo "🎉 All checks successful!"
+
+    - name: Upload coverage to Codecov (optional)
+      if: matrix.php-version == '8.4'
+      uses: codecov/codecov-action@v3
+      with:
+        file: ./coverage.xml
+        flags: unittests
+        name: codecov-umbrella
+        fail_ci_if_error: false
+
+  quality:
+    runs-on: ubuntu-latest
+    name: Code Quality Checks
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Setup PHP
+      uses: shivammathur/setup-php@v2
+      with:
+        php-version: 8.4
+        extensions: dom, curl, libxml, mbstring, zip, pcntl, pdo, sqlite, pdo_sqlite, bcmath, soap, intl, gd, exif, iconv
+
+    - name: Install dependencies
+      run: composer install --prefer-dist --no-progress --no-suggest --no-interaction
+
+    - name: Validate Composer files
+      run: composer validate --strict
+
+    - name: Check Behat scenarios (dry run)
+      run: ./vendor/bin/behat --dry-run --colors
+
+    - name: Verify project structure
+      run: |
+        # Check required files exist
+        test -f src/IntCombiner.php || (echo "❌ Missing src/IntCombiner.php" && exit 1)
+        test -f tests/Unit/IntCombinerTest.php || (echo "❌ Missing tests/Unit/IntCombinerTest.php" && exit 1)
+        test -f features/integer_combination.feature || (echo "❌ Missing features/integer_combination.feature" && exit 1)
+        test -f features/advanced_scenarios.feature || (echo "❌ Missing features/advanced_scenarios.feature" && exit 1)
+        test -f features/bootstrap/IntCombinerContext.php || (echo "❌ Missing features/bootstrap/IntCombinerContext.php" && exit 1)
+        test -f phpunit.xml || (echo "❌ Missing phpunit.xml" && exit 1)
+        test -f behat.yml || (echo "❌ Missing behat.yml" && exit 1)
+        echo "✅ All required files present"

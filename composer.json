@@ -1,0 +1,33 @@
+{
+    "name": "gryfoss/int-combiner",
+    "description": "Allows easy concatenation of ints without conversion through strings.",
+    "type": "library",
+    "license": "MIT",
+    "autoload": {
+        "psr-4": {
+            "GryfOSS\\Formatter\\": "src/"
+        }
+    },
+    "authors": [
+        {
+            "name": "Bartosz Pachołek",
+            "email": "bartosz+github@idct.tech"
+        }
+    ],
+    "minimum-stability": "stable",
+    "require-dev": {
+        "phpunit/phpunit": "^12.3",
+        "behat/behat": "^3.24"
+    },
+    "scripts": {
+        "test": "XDEBUG_MODE=coverage phpunit",
+        "test-coverage": "XDEBUG_MODE=coverage phpunit --coverage-text",
+        "test-coverage-html": "XDEBUG_MODE=coverage phpunit --coverage-html=coverage-report",
+        "behat": "behat",
+        "behat-dry": "behat --dry-run",
+        "test-all": "XDEBUG_MODE=coverage phpunit && behat",
+        "check-coverage": "./scripts/check-coverage.sh",
+        "ci": "composer validate --strict && ./scripts/check-coverage.sh && behat --colors",
+        "ci-local": "composer install && composer ci"
+    }
+}
