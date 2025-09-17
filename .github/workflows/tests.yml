@@ -58,15 +58,6 @@ jobs:
         echo "✅ Code coverage requirement (100%) met"
         echo "🎉 All checks successful!"
 
-    - name: Upload coverage to Codecov (optional)
-      if: matrix.php-version == '8.4'
-      uses: codecov/codecov-action@v3
-      with:
-        file: ./coverage.xml
-        flags: unittests
-        name: codecov-umbrella
-        fail_ci_if_error: false
-
   quality:
     runs-on: ubuntu-latest
     name: Code Quality Checks
