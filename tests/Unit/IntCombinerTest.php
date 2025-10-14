@@ -218,4 +218,23 @@ class IntCombinerTest extends TestCase
         $result = IntCombiner::combine(100, 100);
         $this->assertEquals(100100, $result);
     }
+
+    /**
+     * Test overflow exception when result exceeds PHP_INT_MAX
+     *
+     * @covers GryfOSS\Formatter\IntCombiner::combine
+     */
+    public function testThrowsOverflowExceptionWhenResultExceedsMaxLimit(): void
+    {
+        $this->expectException(\OverflowException::class);
+        $this->expectExceptionMessage('The combined integer exceeds the maximum limit.');
+
+        // Use large numbers that when combined will exceed PHP_INT_MAX
+        // PHP_INT_MAX is typically 9223372036854775807 on 64-bit systems
+        // Let's use numbers that will definitely cause overflow
+        $largeA = PHP_INT_MAX;
+        $largeB = 1;
+
+        IntCombiner::combine($largeA, $largeB);
+    }
 }

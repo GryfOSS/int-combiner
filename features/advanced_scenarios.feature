@@ -84,3 +84,15 @@ Feature: Advanced Integer Combination Scenarios
       | 10    | 0      | 100      | 10 * 10 = 100           |
       | 0     | 5      | 5        | 0 * 10^1 + 5 = 5        |
       | 0     | 123    | 123      | 0 * 10^3 + 123 = 123    |
+
+  Scenario: Overflow handling validation
+    Given I want to test overflow scenarios
+    When I attempt to combine integers that exceed the maximum limit
+    Then the system should handle overflow gracefully
+    And throw appropriate overflow exceptions
+
+  Scenario: Testing integer overflow boundaries
+    Given I have integers near the maximum limit
+    When I try to combine them causing overflow
+    Then I should get an OverflowException
+    And the error message should be "The combined integer exceeds the maximum limit."

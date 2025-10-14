@@ -90,3 +90,9 @@ Feature: Integer Combination
     When I try to combine the integers
     Then I should get an InvalidArgumentException
     And the error message should be "Both integers must be non-negative."
+
+  Scenario: Attempting to combine integers that would cause overflow
+    Given I have integers that would cause overflow when combined
+    When I try to combine the integers that cause overflow
+    Then I should get an OverflowException
+    And the error message should be "The combined integer exceeds the maximum limit."
